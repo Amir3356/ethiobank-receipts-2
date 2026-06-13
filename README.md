@@ -1,58 +1,44 @@
 # EthioBank Receipts
 
-Extract structured transaction data from Ethiopian bank receipt pages and PDFs.
+Extract receipt data from Ethiopian bank transaction pages and PDFs.
 
-**Supported banks:** CBE, Dashen, Awash, Bank of Abyssinia, Zemen, Telebirr
+## Supported Banks
 
-## Project Structure
+- CBE (Commercial Bank of Ethiopia)
+- Dashen Bank
+- Awash Bank
+- Bank of Abyssinia (BOA)
+- Zemen Bank
+- Tele (Ethio Telecom)
+- M-Pesa
+- CBE Birr
 
-```
-├── backend/          Node.js Express API (ESM)
-│   ├── server.js           Entry point (port 5000)
-│   ├── controllers/        Route handlers
-│   ├── routes/             Express route definitions
-│   ├── extractors/         Bank-specific receipt parsers
-│   └── services/           Extractor registry
-└── frontend/         React + Vite UI
-    └── src/
-        ├── pages/
-        ├── components/
-        └── services/       Axios API client
-```
+## Structure
 
-## Getting Started
+- `backend/` — Laravel API (`/api/receipts/extract`, `/api/receipts/banks`)
+- `frontend/` — React SPA (Vite)
 
-### Backend
+## Setup
 
 ```bash
 cd backend
-npm install
-npm run dev      # or: npm start
-```
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
+composer setup    # install, .env, key, migrate, build
+composer dev      # serve + queue + logs + vite
 ```
 
 ## API
 
-`POST /api/receipts/extract`
+```bash
+# List supported banks
+GET /api/receipts/banks
 
-| Field | Required | Description |
-|-------|----------|-------------|
-| `bank` | yes | `auto`, `cbe`, `dashen`, `awash`, `boa`, `zemen`, `tele` |
-| `url` | conditional | Receipt URL (not needed if `reference` provided for tele/cbe) |
-| `reference` | conditional | FT number (CBE) or transaction ID (telebirr) |
-| `account` | for CBE | Receiver account (last 8+ digits) |
-
-`GET /api/receipts/banks` — List supported banks.
-
-## How It Works
-
-1. Select a bank (or auto-detect from URL).
-2. Submit a receipt URL (or FT number + account for CBE).
-3. The backend downloads the receipt (PDF or HTML), parses it with bank-specific extractors, and returns normalized JSON.
+# Extract receipt data
+POST /api/receipts/extract
+{
+  "bank": "cbe|dashen|awash|boa|zemen|tele|mpesa|cbe_birr|auto",
+  "url": "https://...",
+  "reference": "...",
+  "account": "...",
+  "phone": "..."
+}
+```
